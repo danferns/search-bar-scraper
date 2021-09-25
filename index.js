@@ -18,7 +18,7 @@ const topSites = await page.evaluate(() => {
 
 console.log(`Fetched top ${topSites.length} sites.`);
 
-for (const site of topSites) {
+for (const site of topSites.slice(0, 5)) {
     const siteTab = await browser.newPage();
     try {
         await siteTab.goto(site);
@@ -93,7 +93,7 @@ for (const site of topSites) {
 await browser.close();
 
 const json = JSON.stringify(searchBarData);
-FileSystem.writeFile("engines.json", json, "utf-8");
+FileSystem.writeFile("engines.json", json, "utf-8", () => {});
 
 function getSeachBarData(site, search_url) {
     let hasSearchTerms = true;
@@ -103,7 +103,7 @@ function getSeachBarData(site, search_url) {
     }
     if (hasSearchTerms) {
         const baseUrl = search_url.split(words[0])[0];
-        const separator = search_url.split(words[0])[1].split(words[1]);
+        const separator = search_url.split(words[0])[1].split(words[1])[0];
         searchBarData.push([site, baseUrl, separator]);
     }
 }
