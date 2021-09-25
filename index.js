@@ -1,8 +1,11 @@
 import Puppeteer from "puppeteer";
+import FileSystem from "fs";
+
+let searchBarData = [];
 
 const SEARCH_STRING = "test search";
 
-const browser = await Puppeteer.launch({ headless: false });
+const browser = await Puppeteer.launch();
 const page = await browser.newPage();
 await page.goto('https://moz.com/top500');
 
@@ -59,7 +62,6 @@ for (const site of topSites) {
             console.log(`${site}: Found a search bar. Fetching URL...`)
             await siteTab.focus(searchBar);
             await siteTab.keyboard.type(SEARCH_STRING);
-            const mainUrl = siteTab.url();
             await siteTab.keyboard.press('Enter');
             try {
                 await Promise.all([
@@ -76,6 +78,8 @@ for (const site of topSites) {
             }
             const url = siteTab.url();
             console.log(`${site}: ${url}\n`);
+
+            getSeachBarData(site, url);
         } else {
             console.log(`${site}: No search bar found.\n`);
         }
@@ -87,3 +91,19 @@ for (const site of topSites) {
 };
 
 await browser.close();
+
+const json = JSON.stringify(searchBarData);
+FileSystem.writeFile("engines.json", json, "utf-8");
+
+function getSeachBarData(site, search_url) {
+    let hasSearchTerms = true;
+    const words = SEARCH_STRING.split(" ")
+    for (const word of words) {
+        if (!search_url.includes(word)) hasSearchTerms = false;
+    }
+    if (hasSearchTerms) {
+        const baseUrl = search_url.split(words[0])[0];
+        const separator = search_url.split(words[0])[1].split(words[1]);
+        searchBarData.push([site, baseUrl, separator]);
+    }
+}
