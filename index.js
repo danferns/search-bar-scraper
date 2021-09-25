@@ -15,8 +15,9 @@ console.log(`Fetched top ${topSites.length} sites.`);
 
 for (const site of topSites) {
     try {
-        await page.goto(site);
-        const hasSearchBar = await page.evaluate(() => {
+        const siteTab = await browser.newPage();
+        await siteTab.goto(site);
+        const hasSearchBar = await siteTab.evaluate(() => {
             const inputs = document.querySelectorAll("input");
             for (const input of inputs) {
                 const testStrings = [
@@ -53,13 +54,13 @@ for (const site of topSites) {
         });
         if (hasSearchBar) {
             console.log(`${site}: Found a search bar. Fetching URL... `)
-            await page.waitForNavigation({waitUntil: "load"});
-            console.log(`${site}: ${page.url()}\n`);
+            await siteTab.waitForNavigation({waitUntil: "load"});
+            console.log(`${site}: ${siteTab.url()}\n`);
         } else {
             console.log(`${site}: No search bar found.\n`)
         }
-    }
-    catch (e) {
+        await siteTab?.close();
+    } catch (e) {
         console.log(`${site} An error occured when accessing the site. \n${e}\n`);
     }
 };
