@@ -1,0 +1,19 @@
+{
+  "name": "search-bar-scraper",
+  "version": "1.0.0",
+  "description": "Find search bars and their URL syntax on the most popular websites",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "search",
+    "scraping"
+  ],
+  "author": "Daniel Fernandes",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^10.4.0"
+  }
+}
