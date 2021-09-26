@@ -18,7 +18,7 @@ const topSites = await page.evaluate(() => {
 
 console.log(`Fetched top ${topSites.length} sites.`);
 
-for (const site of topSites.slice(0, 5)) {
+for (const site of topSites) {
     const siteTab = await browser.newPage();
     try {
         await siteTab.goto(site);
