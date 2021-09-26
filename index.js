@@ -7,12 +7,12 @@ const SEARCH_STRING = "test search";
 
 const browser = await Puppeteer.launch();
 const page = await browser.newPage();
-await page.goto('https://moz.com/top500');
+await page.goto("https://moz.com/top500");
 
 const topSites = await page.evaluate(() => {
     const elements = document.querySelectorAll("td > a");
     let hrefs = [];
-    elements.forEach(a => hrefs.push(a.href));
+    elements.forEach((a) => hrefs.push(a.href));
     return hrefs;
 });
 
@@ -31,7 +31,7 @@ for (const site of topSites) {
                     input.id,
                     input.className,
                     input.ariaLabel,
-                    input.title
+                    input.title,
                 ];
                 let isSearchBox = false;
 
@@ -42,38 +42,47 @@ for (const site of topSites) {
                         isSearchBox = true;
                         break;
                     }
-                };
+                }
 
                 if (isSearchBox) {
                     let query = "input";
                     if (input.id) query += "#" + input.id;
-                    input.classList.forEach(cls => { query += "." + cls });
-                    // if (input.type) query += `[type='${input.type}']`;
-                    if (input.placeholder) query += `[placeholder='${input.placeholder}']`;
-                    if (input.ariaLabel) query += `[aria-label='${input.ariaLabel}']`;
+                    input.classList.forEach((cls) => {
+                        query += "." + cls;
+                    });
+                    if (input.placeholder)
+                        query += `[placeholder='${input.placeholder}']`;
+                    if (input.ariaLabel)
+                        query += `[aria-label='${input.ariaLabel}']`;
 
                     return query;
                 }
-            };
+            }
             return false;
         });
 
         if (searchBar) {
-            console.log(`${site}: Found a search bar. Fetching URL...`)
+            console.log(`${site}: Found a search bar. Fetching URL...`);
             await siteTab.focus(searchBar);
             await siteTab.keyboard.type(SEARCH_STRING);
-            await siteTab.keyboard.press('Enter');
+            await siteTab.keyboard.press("Enter");
             try {
                 await Promise.all([
-                    siteTab.keyboard.press('Enter'),
-                    siteTab.waitForNavigation({ waitUntil: "load", timeout: 5000 })
+                    siteTab.keyboard.press("Enter"),
+                    siteTab.waitForNavigation({
+                        waitUntil: "load",
+                        timeout: 5000,
+                    }),
                 ]);
             } catch {
                 await Promise.all([
                     siteTab.evaluate((query) => {
                         document.querySelector(query).form?.submit();
                     }, searchBar),
-                    siteTab.waitForNavigation({ waitUntil: "load", timeout: 5000 })
+                    siteTab.waitForNavigation({
+                        waitUntil: "load",
+                        timeout: 5000,
+                    }),
                 ]);
             }
             const url = siteTab.url();
@@ -85,10 +94,12 @@ for (const site of topSites) {
         }
         await siteTab.close();
     } catch (e) {
-        console.log(`${site} An error occured when accessing the site. \n${e}\n`);
+        console.log(
+            `${site} An error occured when accessing the site. \n${e}\n`
+        );
         await siteTab?.close();
     }
-};
+}
 
 await browser.close();
 
@@ -97,7 +108,7 @@ FileSystem.writeFile("engines.json", json, "utf-8", () => {});
 
 function getSeachBarData(site, search_url) {
     let hasSearchTerms = true;
-    const words = SEARCH_STRING.split(" ")
+    const words = SEARCH_STRING.split(" ");
     for (const word of words) {
         if (!search_url.includes(word)) hasSearchTerms = false;
     }
